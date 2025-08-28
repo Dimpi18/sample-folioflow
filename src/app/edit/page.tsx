@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from 'react';
@@ -13,15 +12,16 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { AiAssistantForm } from '@/components/ai-assistant-form';
 import type { Project, Skill } from '@/types/portfolio';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Skeleton } from '@/components/ui/skeleton';
-import { PlusCircle, Trash2, X } from 'lucide-react';
+import { PlusCircle, Trash2, X, Upload } from 'lucide-react';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { templates } from '@/lib/templates';
 import type { PortfolioData } from '@/types/portfolio';
+import { cn } from '@/lib/utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +33,74 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+
+const handleFileDrop = (e: React.DragEvent<HTMLElement>, onFile: (file: File) => void) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        onFile(e.dataTransfer.files[0]);
+        e.dataTransfer.clearData();
+    }
+};
+
+const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, onFile: (file: File) => void) => {
+    if (e.target.files && e.target.files.length > 0) {
+        onFile(e.target.files[0]);
+    }
+};
+
+const readFileAsDataURL = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+};
+
+function FileDropzone({ onValueChange, value, ...props } : React.ComponentProps<typeof Input> & { onValueChange: (value: string) => void }) {
+    const [isDragging, setIsDragging] = React.useState(false);
+    const inputRef = React.useRef<HTMLInputElement>(null);
+
+    const processFile = async (file: File) => {
+        if (file && file.type.startsWith('image/')) {
+            const dataUrl = await readFileAsDataURL(file);
+            onValueChange(dataUrl);
+        }
+    };
+
+    return (
+        <div
+            className={cn("relative rounded-lg border-2 border-dashed border-border flex flex-col justify-center items-center p-6 text-center transition-colors", isDragging && "bg-accent border-primary")}
+            onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(true);}}
+            onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setIsDragging(false);}}
+            onDragOver={(e) => { e.preventDefault(); e.stopPropagation();}}
+            onDrop={async (e) => {
+                setIsDragging(false);
+                handleFileDrop(e, processFile);
+            }}
+            onClick={() => inputRef.current?.click()}
+        >
+            <Upload className="size-8 text-muted-foreground mb-2" />
+            <p className="text-sm text-muted-foreground">
+              <span className="font-semibold text-primary">Click to upload</span> or drag and drop
+            </p>
+            <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</p>
+            <Input {...props} value={value} onChange={async (e) => {
+                handleFileSelect(e, processFile)
+                onValueChange(e.target.value);
+            }} type="file" ref={inputRef} className="sr-only" />
+             <Input 
+                type="text"
+                value={value}
+                onChange={(e) => onValueChange(e.target.value)}
+                placeholder="Or paste an image URL"
+                className="mt-4 h-9"
+                onClick={(e) => e.stopPropagation()}
+            />
+        </div>
+    );
+}
 
 export default function EditPage() {
   const { portfolioData, setPortfolioData, isInitialized } = usePortfolioStore();
@@ -58,6 +126,17 @@ export default function EditPage() {
     });
   };
   
+  const handlePersonalInfoValueChange = (name: string, value: string) => {
+    if (!portfolioData) return;
+     setPortfolioData({
+      ...portfolioData,
+      personalInfo: {
+        ...portfolioData.personalInfo,
+        [name]: value,
+      },
+    });
+  }
+
   const handleAddProject = (newProject: Omit<Project, 'id'>) => {
     if (!portfolioData) return;
     const projectWithId = { ...newProject, id: Date.now().toString() };
@@ -169,8 +248,8 @@ export default function EditPage() {
                   <Input id="headline" name="headline" value={portfolioData.personalInfo.headline} onChange={handlePersonalInfoChange} placeholder="e.g., Full-Stack Developer" />
                 </div>
                  <div className="space-y-2">
-                  <Label htmlFor="profilePictureUrl">Profile Picture URL</Label>
-                  <Input id="profilePictureUrl" name="profilePictureUrl" value={portfolioData.personalInfo.profilePictureUrl} onChange={handlePersonalInfoChange} />
+                  <Label htmlFor="profilePictureUrl">Profile Picture</Label>
+                  <FileDropzone id="profilePictureUrl" name="profilePictureUrl" value={portfolioData.personalInfo.profilePictureUrl} onValueChange={(value) => handlePersonalInfoValueChange('profilePictureUrl', value)} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="bio">About Me</Label>
@@ -333,14 +412,27 @@ export default function EditPage() {
 const projectSchema = z.object({
     title: z.string().min(1, 'Title is required'),
     description: z.string().min(1, 'Description is required'),
-    imageUrl: z.string().url('Invalid URL'),
+    imageUrl: z.string().url('A valid URL or data URL is required'),
     projectUrl: z.string().url('Invalid URL'),
     githubUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
+}).refine(data => {
+    try {
+        if (data.imageUrl.startsWith('data:')) {
+            return true;
+        }
+        new URL(data.imageUrl);
+        return true;
+    } catch {
+        return false;
+    }
+}, {
+    message: 'A valid URL or data URL is required',
+    path: ['imageUrl'],
 });
 
 function ProjectDialog({ project, onSave, trigger }: { project?: Project, onSave: (data: any) => void, trigger: React.ReactNode }) {
     const isEditMode = !!project;
-    const { register, handleSubmit, formState: { errors } } = useForm<Omit<Project, 'id'>>({
+    const { control, register, handleSubmit, formState: { errors } } = useForm<Omit<Project, 'id'>>({
         resolver: zodResolver(projectSchema),
         defaultValues: isEditMode ? project : { title: '', description: '', imageUrl: 'https://picsum.photos/600/400', projectUrl: '', githubUrl: '' },
     });
@@ -377,10 +469,20 @@ function ProjectDialog({ project, onSave, trigger }: { project?: Project, onSave
                         <Textarea id="description" {...register('description')} className="col-span-3" />
                          {errors.description && <p className="col-span-4 text-right text-sm text-destructive">{errors.description.message}</p>}
                     </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="imageUrl" className="text-right">Image URL</Label>
-                        <Input id="imageUrl" {...register('imageUrl')} className="col-span-3" />
-                         {errors.imageUrl && <p className="col-span-4 text-right text-sm text-destructive">{errors.imageUrl.message}</p>}
+                    <div className="space-y-2">
+                        <Label htmlFor="imageUrl">Project Image</Label>
+                        <Controller
+                            control={control}
+                            name="imageUrl"
+                            render={({ field }) => (
+                                <FileDropzone 
+                                    id="imageUrl"
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                />
+                            )}
+                        />
+                         {errors.imageUrl && <p className="text-right text-sm text-destructive">{errors.imageUrl.message}</p>}
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="projectUrl" className="text-right">Project URL</Label>
