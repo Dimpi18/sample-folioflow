@@ -30,13 +30,13 @@ const features = [
     icon: <LayoutTemplate className="size-8 text-primary" />,
     title: 'Stunning Templates',
     description: 'Choose from a variety of professionally designed templates to get started fast.',
-    href: '/edit',
+    href: '/edit#templates',
   },
   {
     icon: <Zap className="size-8 text-primary" />,
     title: 'AI Content Assistant',
     description: 'Get AI-powered suggestions to make your portfolio content shine.',
-    href: '/edit',
+    href: '/edit#ai-assistant',
   },
   {
     icon: <Share2 className="size-8 text-primary" />,

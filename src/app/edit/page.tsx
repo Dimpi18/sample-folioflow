@@ -37,6 +37,14 @@ import {
 export default function EditPage() {
   const { portfolioData, setPortfolioData, isInitialized } = usePortfolioStore();
   const [newSkill, setNewSkill] = React.useState('');
+  const [activeTab, setActiveTab] = React.useState('personal-info');
+
+  React.useEffect(() => {
+    const hash = window.location.hash.substring(1);
+    if (hash) {
+      setActiveTab(hash);
+    }
+  }, []);
 
   const handlePersonalInfoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (!portfolioData) return;
@@ -134,7 +142,7 @@ export default function EditPage() {
           Fill in your details below. Your changes are saved automatically.
         </p>
 
-        <Tabs defaultValue="personal-info" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="personal-info">Personal Info</TabsTrigger>
             <TabsTrigger value="projects">Projects</TabsTrigger>
@@ -264,7 +272,7 @@ export default function EditPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="templates">
+          <TabsContent value="templates" id="templates">
             <Card>
               <CardHeader>
                 <CardTitle>Portfolio Templates</CardTitle>
@@ -313,7 +321,7 @@ export default function EditPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="ai-assistant">
+          <TabsContent value="ai-assistant" id="ai-assistant">
             <AiAssistantForm />
           </TabsContent>
         </Tabs>
