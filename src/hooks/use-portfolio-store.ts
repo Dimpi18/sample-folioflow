@@ -67,33 +67,22 @@ export function PortfolioStoreProvider({ children }: { children: ReactNode }) {
     if (!selectedTheme) return;
 
     const root = document.documentElement;
-    
-    // Apply light theme
-    Object.entries(selectedTheme.light).forEach(([key, value]) => {
-        root.style.setProperty(`--${key}`, value);
-    });
+    root.classList.remove(...themes.map(t => t.id).filter(t => t !== 'default'));
+    if (theme !== 'default') {
+        root.classList.add(theme);
+    }
 
-    // Apply dark theme
-    const darkStyle = document.createElement('style');
-    darkStyle.innerHTML = `
-      .dark {
-        ${Object.entries(selectedTheme.dark).map(([key, value]) => `--${key}: ${value};`).join('\n')}
-      }
-    `;
-    document.head.appendChild(darkStyle);
+    const currentTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? selectedTheme.dark : selectedTheme.light;
     
-    // Cleanup old dark theme styles
-    return () => {
-        if (darkStyle.parentNode) {
-            document.head.removeChild(darkStyle);
-        }
-    };
+    for (const [key, value] of Object.entries(currentTheme)) {
+       root.style.setProperty(`--${key}`, value);
+    }
+
   }, [theme]);
 
 
   useEffect(() => {
-    const cleanup = applyTheme();
-    return cleanup;
+    applyTheme();
   }, [theme, applyTheme]);
 
   const setAndPersistTheme = useCallback((themeId: string) => {
