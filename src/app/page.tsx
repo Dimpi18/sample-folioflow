@@ -24,31 +24,37 @@ const features = [
     icon: <Construction className="size-8 text-primary" />,
     title: 'Drag-and-Drop Builder',
     description: 'Effortlessly design your portfolio with our intuitive, no-code interface.',
+    href: '/edit',
   },
   {
     icon: <LayoutTemplate className="size-8 text-primary" />,
     title: 'Stunning Templates',
     description: 'Choose from a variety of professionally designed templates to get started fast.',
+    href: '/edit',
   },
   {
     icon: <Zap className="size-8 text-primary" />,
     title: 'AI Content Assistant',
     description: 'Get AI-powered suggestions to make your portfolio content shine.',
+    href: '/edit',
   },
   {
     icon: <Share2 className="size-8 text-primary" />,
     title: 'One-Click Hosting',
     description: 'Publish your portfolio to the world with a single click. No hosting fees.',
+    href: '/preview',
   },
   {
     icon: <FileDown className="size-8 text-primary" />,
     title: 'PDF Export',
     description: 'Download a high-quality PDF of your portfolio for offline applications.',
+    href: '/preview',
   },
   {
     icon: <Brush className="size-8 text-primary" />,
     title: 'Easy Customization',
     description: 'Tailor every detail to match your personal brand and style.',
+    href: '/edit',
   },
 ];
 
@@ -103,15 +109,17 @@ export default function Home() {
             </div>
             <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-2 md:gap-12 lg:grid-cols-3 mt-12">
               {features.map((feature, index) => (
-                <Card key={index} className="hover:shadow-md transition-shadow">
-                  <CardHeader className="flex flex-row items-center gap-4">
-                    {feature.icon}
-                    <CardTitle>{feature.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription>{feature.description}</CardDescription>
-                  </CardContent>
-                </Card>
+                <Link href={feature.href} key={index} className="block h-full">
+                  <Card className="hover:shadow-md transition-shadow h-full">
+                    <CardHeader className="flex flex-row items-center gap-4">
+                      {feature.icon}
+                      <CardTitle>{feature.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <CardDescription>{feature.description}</CardDescription>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           </div>
