@@ -80,7 +80,7 @@ export function PortfolioPreview({ data }: { data: PortfolioData }) {
           <h2 className="text-3xl font-bold font-headline">Projects</h2>
           <div className="space-y-12">
             {projects.map((project) => (
-              <div key={project.id} className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start print:grid-cols-1">
+              <div key={project.id} className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start print:grid-cols-[150px_1fr] print:gap-4">
                   <Image
                     src={project.imageUrl || 'https://picsum.photos/600/400'}
                     alt={project.title}
