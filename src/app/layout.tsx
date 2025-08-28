@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
+import { PortfolioStoreProvider } from '@/hooks/use-portfolio-store';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -28,7 +29,9 @@ export default function RootLayout({
         />
       </head>
       <body className={cn('font-body antialiased', inter.variable)}>
-        {children}
+        <PortfolioStoreProvider>
+            {children}
+        </PortfolioStoreProvider>
         <Toaster />
       </body>
     </html>

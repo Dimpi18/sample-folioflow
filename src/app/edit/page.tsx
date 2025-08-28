@@ -19,8 +19,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { PlusCircle, Trash2, X, Upload } from 'lucide-react';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
-import { templates } from '@/lib/templates';
-import type { PortfolioData } from '@/types/portfolio';
 import { cn } from '@/lib/utils';
 import {
   AlertDialog,
@@ -184,11 +182,6 @@ export default function EditPage() {
     });
   };
 
-  const handleSelectTemplate = (templateData: PortfolioData) => {
-    setPortfolioData(templateData);
-  }
-
-
   if (!isInitialized || !portfolioData) {
     return (
         <div className="flex flex-col min-h-screen">
@@ -222,11 +215,10 @@ export default function EditPage() {
         </p>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="personal-info">Personal Info</TabsTrigger>
             <TabsTrigger value="projects">Projects</TabsTrigger>
             <TabsTrigger value="skills">Skills</TabsTrigger>
-            <TabsTrigger value="templates">Templates</TabsTrigger>
             <TabsTrigger value="ai-assistant">AI Assistant</TabsTrigger>
           </TabsList>
 
@@ -351,55 +343,6 @@ export default function EditPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="templates" id="templates">
-            <Card>
-              <CardHeader>
-                <CardTitle>Portfolio Templates</CardTitle>
-                <CardDescription>
-                  Choose a template to quickly style your portfolio. This will replace your current content.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {templates.map((template) => (
-                  <Card key={template.id} className="overflow-hidden">
-                    <Image 
-                      src={template.previewImage} 
-                      alt={`${template.name} template preview`} 
-                      width={400} 
-                      height={300} 
-                      className="w-full h-auto object-cover border-b"
-                      data-ai-hint="template preview"
-                    />
-                    <CardHeader>
-                      <CardTitle className="text-lg">{template.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                       <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button className="w-full">Select {template.name}</Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Apply {template.name} Template?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This will replace all your current portfolio content with the content from the {template.name} template. Are you sure you want to proceed?
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => handleSelectTemplate(template.data)}>
-                                Apply Template
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                    </CardContent>
-                  </Card>
-                ))}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           <TabsContent value="ai-assistant" id="ai-assistant">
             <AiAssistantForm />
           </TabsContent>
@@ -454,6 +397,7 @@ function ProjectDialog({ project, onSave, trigger }: { project?: Project, onSave
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>{isEditMode ? 'Edit Project' : 'Add Project'}</DialogTitle>
+
                     <DialogDescription>
                         {isEditMode ? 'Make changes to your project here.' : 'Add a new project to your portfolio.'} Click save when you're done.
                     </DialogDescription>
