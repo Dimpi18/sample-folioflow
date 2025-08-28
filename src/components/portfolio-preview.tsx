@@ -78,38 +78,36 @@ export function PortfolioPreview({ data }: { data: PortfolioData }) {
         {/* Projects Section */}
         <section id="projects" className="space-y-8">
           <h2 className="text-3xl font-bold font-headline">Projects</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-12">
             {projects.map((project) => (
-              <Card key={project.id} className="overflow-hidden flex flex-col group hover:shadow-xl transition-shadow duration-300">
-                <Image
-                  src={project.imageUrl || 'https://picsum.photos/600/400'}
-                  alt={project.title}
-                  width={600}
-                  height={400}
-                  className="w-full h-48 object-cover"
-                  data-ai-hint="project screenshot"
-                />
-                <CardHeader>
-                  <CardTitle>{project.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  <p className="text-muted-foreground text-sm">{project.description}</p>
-                </CardContent>
-                <div className="p-4 pt-0 flex gap-2">
-                   <Button asChild variant="outline" size="sm">
-                       <a href={project.projectUrl} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="mr-2 size-4"/> Live Demo
-                       </a>
-                   </Button>
-                   {project.githubUrl && (
-                        <Button asChild variant="secondary" size="sm">
-                            <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                                <Github className="mr-2 size-4"/> Source
-                            </a>
-                        </Button>
-                   )}
+              <div key={project.id} className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start print:grid-cols-1">
+                  <Image
+                    src={project.imageUrl || 'https://picsum.photos/600/400'}
+                    alt={project.title}
+                    width={600}
+                    height={400}
+                    className="w-full rounded-lg object-cover shadow-md"
+                    data-ai-hint="project screenshot"
+                  />
+                <div className="space-y-3">
+                  <h3 className="text-2xl font-bold">{project.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed text-base">{project.description}</p>
+                   <div className="flex gap-2 pt-2 print:hidden">
+                       <Button asChild variant="outline" size="sm">
+                           <a href={project.projectUrl} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="mr-2 size-4"/> Live Demo
+                           </a>
+                       </Button>
+                       {project.githubUrl && (
+                            <Button asChild variant="secondary" size="sm">
+                                <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                                    <Github className="mr-2 size-4"/> Source
+                                </a>
+                            </Button>
+                       )}
+                    </div>
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         </section>
