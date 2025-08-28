@@ -114,7 +114,9 @@ export default function PreviewPage() {
           <span className="sr-only">Export to PDF</span>
         </Button>
       </div>
-      <PortfolioPreview data={portfolioData} />
+      <div className="bg-background">
+        <PortfolioPreview data={portfolioData} />
+      </div>
     </>
   );
 }
