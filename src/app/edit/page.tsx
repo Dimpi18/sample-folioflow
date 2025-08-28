@@ -84,10 +84,7 @@ function FileDropzone({ onValueChange, value, ...props } : React.ComponentProps<
               <span className="font-semibold text-primary">Click to upload</span> or drag and drop
             </p>
             <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 10MB</p>
-            <Input {...props} value={value} onChange={async (e) => {
-                handleFileSelect(e, processFile)
-                onValueChange(e.target.value);
-            }} type="file" ref={inputRef} className="sr-only" />
+            <Input {...props} onChange={(e) => handleFileSelect(e, processFile)} type="file" ref={inputRef} className="sr-only" />
              <Input 
                 type="text"
                 value={value}
